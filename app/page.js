@@ -96,7 +96,6 @@ export default function Home() {
     const storageRef = ref(storage, `images/${itemName}.jpg`);
     await uploadString(storageRef, imageSrc, "data_url");
     const downloadURL = await getDownloadURL(storageRef);
-    // You can save this downloadURL to your Firestore database if needed
     handleCameraClose();
   };
 
