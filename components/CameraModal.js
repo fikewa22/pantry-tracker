@@ -9,6 +9,7 @@ import {
   IconButton,
   Fade,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebase";
@@ -41,6 +42,7 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
   const camera = useRef(null);
   const [isFrontCamera, setIsFrontCamera] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const recognizeImage = async (imageBase64) => {
     try {
@@ -53,13 +55,15 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to recognize image");
       }
 
       const result = await response.json();
       console.log("Recognition result:", result);
     } catch (error) {
       console.error("Error recognizing image:", error);
+      setError(error.message || "Failed to recognize image");
     }
   };
 
@@ -67,6 +71,8 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
     if (!camera.current) return;
 
     setIsLoading(true);
+    setError("");
+    
     try {
       const imageSrc = camera.current.takePhoto();
 
@@ -76,23 +82,35 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
 
       const base64Image = await convertImage(file);
 
+      // Check if Firebase storage is available
+      if (!storage) {
+        console.warn("Firebase storage not available, skipping upload");
+        // Still try to recognize the image
+        await recognizeImage(base64Image);
+        handleCameraClose();
+        return;
+      }
+
       const storageRef = ref(storage, `images/${itemName}.jpg`);
       await uploadString(storageRef, base64Image, "data_url");
 
       const downloadURL = await getDownloadURL(storageRef);
       handleCameraClose();
 
-      recognizeImage(downloadURL);
+      await recognizeImage(downloadURL);
     } catch (error) {
       console.error("Error taking picture or converting image:", error);
+      setError("Failed to process image. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const toggleCamera = () => {
-    camera.current.switchCamera();
-    setIsFrontCamera(!isFrontCamera);
+    if (camera.current) {
+      camera.current.switchCamera();
+      setIsFrontCamera(!isFrontCamera);
+    }
   };
 
   return (
@@ -153,6 +171,17 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
               </Typography>
             )}
           </Box>
+
+          {/* Error Alert */}
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ m: 2 }}
+              onClose={() => setError("")}
+            >
+              {error}
+            </Alert>
+          )}
 
           {/* Camera Container */}
           <Box
