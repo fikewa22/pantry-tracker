@@ -72,7 +72,7 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
 
     setIsLoading(true);
     setError("");
-    
+
     try {
       const imageSrc = camera.current.takePhoto();
 
@@ -174,11 +174,7 @@ const CameraModal = ({ cameraOpen, handleCameraClose, itemName }) => {
 
           {/* Error Alert */}
           {error && (
-            <Alert 
-              severity="error" 
-              sx={{ m: 2 }}
-              onClose={() => setError("")}
-            >
+            <Alert severity="error" sx={{ m: 2 }} onClose={() => setError("")}>
               {error}
             </Alert>
           )}

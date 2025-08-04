@@ -3,7 +3,9 @@ import OpenAI from "openai";
 
 // Check if API key is available
 if (!process.env.NEXT_PUBLIC_OPENROUTER_API_KEY) {
-  console.warn("OpenRouter API key not found. Image recognition will not work.");
+  console.warn(
+    "OpenRouter API key not found. Image recognition will not work."
+  );
 }
 
 const openai = new OpenAI({
@@ -19,12 +21,13 @@ export async function POST(req) {
     // Check if API key is configured
     if (!process.env.NEXT_PUBLIC_OPENROUTER_API_KEY) {
       return new NextResponse(
-        JSON.stringify({ 
-          error: "API key not configured. Please set NEXT_PUBLIC_OPENROUTER_API_KEY environment variable." 
-        }), 
-        { 
+        JSON.stringify({
+          error:
+            "API key not configured. Please set NEXT_PUBLIC_OPENROUTER_API_KEY environment variable.",
+        }),
+        {
           status: 500,
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -32,12 +35,12 @@ export async function POST(req) {
     const data = await req.json();
 
     // Validate request data
-    if (!data || typeof data !== 'object') {
+    if (!data || typeof data !== "object") {
       return new NextResponse(
-        JSON.stringify({ error: "Invalid request data format" }), 
-        { 
+        JSON.stringify({ error: "Invalid request data format" }),
+        {
           status: 400,
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -47,10 +50,10 @@ export async function POST(req) {
     if (Array.isArray(data)) {
       if (data.some((item) => !item.role || !item.content)) {
         return new NextResponse(
-          JSON.stringify({ error: "Invalid message format in array" }), 
-          { 
+          JSON.stringify({ error: "Invalid message format in array" }),
+          {
             status: 400,
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
           }
         );
       }
@@ -59,7 +62,10 @@ export async function POST(req) {
       // Handle single object format
       messages = [
         { role: "user", content: systemPrompt },
-        { role: "user", content: data.image || data.content || JSON.stringify(data) }
+        {
+          role: "user",
+          content: data.image || data.content || JSON.stringify(data),
+        },
       ];
     }
 
@@ -95,13 +101,14 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error handling request:", error);
     return new NextResponse(
-      JSON.stringify({ 
-        error: "Internal server error", 
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined 
-      }), 
-      { 
+      JSON.stringify({
+        error: "Internal server error",
+        details:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+      }),
+      {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

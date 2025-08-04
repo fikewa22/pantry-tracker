@@ -16,15 +16,18 @@ const firebaseConfig = {
 };
 
 // Check if Firebase is properly configured
-const isFirebaseConfigured = firebaseConfig.apiKey && 
-  firebaseConfig.authDomain && 
-  firebaseConfig.projectId && 
-  firebaseConfig.storageBucket && 
-  firebaseConfig.messagingSenderId && 
+const isFirebaseConfigured =
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.storageBucket &&
+  firebaseConfig.messagingSenderId &&
   firebaseConfig.appId;
 
 if (!isFirebaseConfigured) {
-  console.warn("Firebase configuration incomplete. Some features may not work properly.");
+  console.warn(
+    "Firebase configuration incomplete. Some features may not work properly."
+  );
   console.warn("Required environment variables:");
   console.warn("- NEXT_PUBLIC_FIREBASE_API_KEY");
   console.warn("- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
